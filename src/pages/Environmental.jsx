@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import DashboardCard from "../components/DashboardCard";
+import DataTable from "../components/DataTable";
 
 export default function Environmental() {
   const [departments, setDepartments] = useState([]);
@@ -51,16 +52,15 @@ export default function Environmental() {
           Emission Factors
         </h2>
 
-        {emissionFactors.map((factor) => (
-          <div
-            key={factor.id}
-            className="border p-3 rounded mb-2"
-          >
-            <h3 className="font-semibold">{factor.name}</h3>
-            <p>Factor: {factor.factor_value}</p>
-            <p>Unit: {factor.unit}</p>
-          </div>
-        ))}
+        <DataTable
+  columns={[
+    { key: "name", label: "Name" },
+    { key: "factor_value", label: "Factor Value" },
+    { key: "unit", label: "Unit" },
+  ]}
+  rows={emissionFactors}
+  emptyText="No emission factors found"
+/>
       </div>
     </div>
   );
