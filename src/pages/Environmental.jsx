@@ -6,6 +6,11 @@ import DataTable from "../components/DataTable";
 export default function Environmental() {
   const [departments, setDepartments] = useState([]);
   const [emissionFactors, setEmissionFactors] = useState([]);
+  const [newFactor, setNewFactor] = useState({
+  name: "",
+  factor_value: "",
+  unit: "",
+});
 
   useEffect(() => {
     fetchDepartments();
@@ -35,7 +40,24 @@ export default function Environmental() {
       setEmissionFactors(data);
     }
   }
+  async function addEmissionFactor() {
+  const { error } = await supabase
+    .from("emission_factors")
+    .insert([newFactor]);
 
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  setNewFactor({
+    name: "",
+    factor_value: "",
+    unit: "",
+  });
+
+  fetchEmissionFactors();
+}
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-4">
@@ -51,7 +73,47 @@ export default function Environmental() {
         <h2 className="text-xl font-semibold mb-3">
           Emission Factors
         </h2>
+        <div className="bg-white rounded-lg shadow p-4 mb-4 flex gap-3">
+  <input
+    type="text"
+    placeholder="Factor Name"
+    value={newFactor.name}
+    onChange={(e) =>
+      setNewFactor({ ...newFactor, name: e.target.value })
+    }
+    className="border p-2 rounded flex-1"
+  />
 
+  <input
+    type="number"
+    placeholder="Factor Value"
+    value={newFactor.factor_value}
+    onChange={(e) =>
+      setNewFactor({
+        ...newFactor,
+        factor_value: e.target.value,
+      })
+    }
+    className="border p-2 rounded"
+  />
+
+  <input
+    type="text"
+    placeholder="Unit"
+    value={newFactor.unit}
+    onChange={(e) =>
+      setNewFactor({ ...newFactor, unit: e.target.value })
+    }
+    className="border p-2 rounded"
+  />
+
+  <button
+  onClick={addEmissionFactor}
+  className="bg-green-600 text-white px-5 rounded"
+>
+  Add
+</button>
+</div>
         <DataTable
   columns={[
     { key: "name", label: "Name" },
