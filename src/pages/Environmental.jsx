@@ -11,6 +11,7 @@ export default function Environmental() {
   factor_value: "",
   unit: "",
 });
+const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     fetchDepartments();
@@ -49,12 +50,46 @@ export default function Environmental() {
     console.error(error);
     return;
   }
+  
+  setNewFactor({
+    name: "",
+    factor_value: "",
+    unit: "",
+  });
+
+  fetchEmissionFactors();
+}
+async function updateEmissionFactor() {
+  const { error } = await supabase
+    .from("emission_factors")
+    .update(newFactor)
+    .eq("id", editingId);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   setNewFactor({
     name: "",
     factor_value: "",
     unit: "",
   });
+
+  setEditingId(null);
+
+  fetchEmissionFactors();
+}
+async function deleteEmissionFactor(id) {
+  const { error } = await supabase
+    .from("emission_factors")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
 
   fetchEmissionFactors();
 }
@@ -108,10 +143,10 @@ export default function Environmental() {
   />
 
   <button
-  onClick={addEmissionFactor}
+  onClick={editingId ? updateEmissionFactor : addEmissionFactor}
   className="bg-green-600 text-white px-5 rounded"
 >
-  Add
+  {editingId ? "Update" : "Add"}
 </button>
 </div>
         <DataTable
@@ -121,6 +156,23 @@ export default function Environmental() {
     { key: "unit", label: "Unit" },
   ]}
   rows={emissionFactors}
+ actions={[
+  {
+    label: "Edit",
+    onClick: (row) => {
+      setEditingId(row.id);
+      setNewFactor({
+        name: row.name,
+        factor_value: row.factor_value,
+        unit: row.unit,
+      });
+    },
+  },
+  {
+  label: "Delete",
+  onClick: (row) => deleteEmissionFactor(row.id),
+},
+]}
   emptyText="No emission factors found"
 />
       </div>
